@@ -3,7 +3,7 @@ from pydub import AudioSegment
 from pydub.silence import split_on_silence
 import shutil
 
-def split_audio_on_silence(audio_file, output_folder, min_silence_len=1000, silence_thresh=-32):
+def split_audio_on_silence(audio_file, output_folder, min_silence_len=1000, silence_thresh=--29):
     try:
         audio = AudioSegment.from_file(audio_file)
         segments = split_on_silence(

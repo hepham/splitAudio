@@ -8,14 +8,14 @@ def split_audio_on_silence(audio_file, min_silence_len=1000, silence_thresh=-32)
     # Split audio on silence
     segments = split_on_silence(
         audio,
-        min_silence_len=min_silence_len,     # minimum silence length in milliseconds
-        silence_thresh=silence_thresh        # silence threshold in dBFS
+        min_silence_len=min_silence_len,    
+        silence_thresh=silence_thresh       
     )
 
     return segments
 
 if __name__ == "__main__":
-    audio_file_path = "data.wav"  # Replace with the actual path to your audio file
+    audio_file_path = "data.wav"  
 
     segments = split_audio_on_silence(audio_file_path)
 
