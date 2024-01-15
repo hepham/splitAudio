@@ -44,17 +44,17 @@ if __name__ == "__main__":
     t=0
     check=True
     for filename, transcription in transcriptions.items():
-        #print(f"Transcription for {filename}: {transcription}")
-        sub1=transcription.lstrip()[:3]
-        sub2=sentences[t].lstrip()[:3]
-        print(sub1)
-        print(sub2)
-        if sub1!=sub2: 
-            print(f"Transcription for {filename}: {transcription}")
-            print(sentences[t])
-            check=False
-            print("error")
+        print(f"Transcription for {filename}: {transcription}")
+    #     sub1=transcription.lstrip()[:3]
+    #     sub2=sentences[t].lstrip()[:3]
+    #     print(sub1)
+    #     print(sub2)
+    #     if sub1!=sub2: 
+    #         print(f"Transcription for {filename}: {transcription}")
+    #         print(sentences[t])
+    #         check=False
+    #         print("error")
             
-        t+=1
-    if(check):
-        print("đúng")
+    #     t+=1
+    # if(check):
+    #     print("đúng")
