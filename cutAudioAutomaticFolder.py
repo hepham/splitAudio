@@ -5,37 +5,8 @@ from pydub.silence import split_on_silence
 from pydub.silence import detect_nonsilent
 import shutil
 import speech_recognition as sr
-import sys
-if sys.stdout.encoding != 'utf-8':
-    sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf-8', buffering=1)
-def transcribe_audio(audio_file):
-    recognizer = sr.Recognizer()
 
-    with sr.AudioFile(audio_file) as source:
-        audio_data = recognizer.record(source)
-
-        try:
-            transcription = recognizer.recognize_google(audio_data, language="vi-VN")
-            return transcription
-        except sr.UnknownValueError:
-            print(f"Google Speech Recognition could not understand audio in {audio_file}")
-            return None
-        except sr.RequestError as e:
-            print(f"Could not request results from Google Speech Recognition service; {e}")
-            return None
-
-def transcribe_all_audio_files(input_folder):
-    transcriptions = {}
-    for filename in os.listdir(input_folder):
-        if filename.endswith(".wav"):
-            audio_file_path = os.path.join(input_folder, filename)
-            transcription = transcribe_audio(audio_file_path)
-
-            if transcription is not None:
-                transcriptions[filename] = transcription
-
-    return transcriptions
-def split_on_silence(audio_segment, min_silence_len=1000, silence_thresh=-16, keep_silence=100,
+def split_on_silence(audio_segment, min_silence_len=1000, silence_thresh=-16,duration=20, keep_silence=100,
                      seek_step=1):
     # from the itertools documentation
     def pairwise(iterable):
@@ -54,6 +25,9 @@ def split_on_silence(audio_segment, min_silence_len=1000, silence_thresh=-16, ke
     ]
     print(output_ranges)
     output_ranges[0][0]=0;
+    output_ranges[0][0]=0;
+    output_ranges[len(output_ranges)-1][1]=duration
+    print("output range:"+str(len(output_ranges)))
     for i in range(1,len(output_ranges)):
         t=(output_ranges[i-1][1]+output_ranges[i][0])/2
         output_ranges[i][0]=t
@@ -75,10 +49,11 @@ def split_on_silence(audio_segment, min_silence_len=1000, silence_thresh=-16, ke
 def split_audio_on_silence(audio_file, output_folder, min_silence_len=1000, silence_thresh=-29):
     try:
         audio = AudioSegment.from_file(audio_file)
+        duration = len(audio)
         segments = split_on_silence(
             audio,
             min_silence_len=min_silence_len,
-            silence_thresh=silence_thresh
+            silence_thresh=silence_thresh,duration=duration
         )
         return segments
     except Exception as e:
@@ -108,6 +83,6 @@ if __name__ == "__main__":
     output_folder_path = "output"
 
     split_and_save_all_audio(input_folder_path, output_folder_path)
-    transcriptions = transcribe_all_audio_files("output/data") 
-    for filename, transcription in transcriptions.items():
-         print(f"Transcription for {filename}: {transcription}")
+    # transcriptions = transcribe_all_audio_files("output/data") 
+    # for filename, transcription in transcriptions.items():
+    #      print(f"Transcription for {filename}: {transcription}")
