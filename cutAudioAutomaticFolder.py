@@ -23,17 +23,13 @@ def split_on_silence(audio_segment, min_silence_len=1000, silence_thresh=-16,dur
         for (start,end)
             in detect_nonsilent(audio_segment, min_silence_len, silence_thresh, seek_step)
     ]
-    print(output_ranges)
     output_ranges[0][0]=0;
     output_ranges[0][0]=0;
     output_ranges[len(output_ranges)-1][1]=duration
-    print("output range:"+str(len(output_ranges)))
     for i in range(1,len(output_ranges)):
         t=(output_ranges[i-1][1]+output_ranges[i][0])/2
         output_ranges[i][0]=t
         output_ranges[i-1][1]=t
-    print("after")
-    print(output_ranges)
     for range_i, range_ii in pairwise(output_ranges):
         last_end = range_i[1]
         next_start = range_ii[0]
@@ -65,12 +61,11 @@ def split_and_save_all_audio(input_folder, output_folder, min_silence_len=200, s
         if filename.endswith(".wav"):
             audio_file_path = os.path.join(input_folder, filename)
             segments = split_audio_on_silence(audio_file_path, output_folder, min_silence_len, silence_thresh)
-            print(f"____________{filename}________________")
             if segments:
                 audio_name = os.path.splitext(filename)[0]
                 subfolder = os.path.join(output_folder, audio_name)
                 os.makedirs(subfolder, exist_ok=True)
-                shutil.copy(audio_file_path, subfolder)
+                # shutil.copy(audio_file_path, subfolder)
                 for i, segment in enumerate(segments):
                     output_file = os.path.join(subfolder, f"{i + 1}.wav")
                     segment.export(output_file, format="wav")

@@ -3,11 +3,9 @@ import speech_recognition as sr
 import os
 import shutil
 import sys
+import threading
 if sys.stdout.encoding != 'utf-8':
     sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf-8', buffering=1)
-OUTPUT_DATA_FOLDER = "output/data"
-OUTPUT_MERGE_FOLDER = "output/merge"
-OUTPUT_AUDIO_CUT_FOLDER = "output/audioCut"
 
 def remove_accents_and_uppercase(text):
     text_without_accents = text.replace(',', '')
@@ -48,14 +46,14 @@ def merge_audio(file1_path, file2_path, output_path):
     merged_audio = audio1 + audio2
     merged_audio.export(output_path, format="wav")
 
-def merge_audio_match_sentence(input_folder, sentences):
+def merge_audio_match_sentence(input_folder, sentences,OUTPUT_DATA_FOLDER,OUTPUT_MERGE_FOLDER,OUTPUT_AUDIO_CUT_FOLDER):
     files = os.listdir(input_folder)
     wav_files = [file for file in files if file.endswith(".wav")]
     n = len(wav_files)
     i = 1
     check = True
     k = 0
-    while i < n - 1:
+    while i < n :
         if check:
             source_path = os.path.join(OUTPUT_DATA_FOLDER, f"{i}.wav")
             destination_path = os.path.join(OUTPUT_MERGE_FOLDER, f"merge{i}.wav")
@@ -75,6 +73,7 @@ def merge_audio_match_sentence(input_folder, sentences):
             merge_audio(file1_path, file2_path, output_path)
             transcription = transcribe_audio(output_path)
             transcription = remove_accents_and_uppercase(transcription)
+            print(transcription)
             if transcription == sentences[k]:
                 k += 1
                 shutil.copy(output_path, OUTPUT_AUDIO_CUT_FOLDER)
@@ -107,19 +106,43 @@ def sort_wav_files(folder_path):
         os.rename(old_path, new_path)
 
     return sorted_wav_files
-def main():
-    file_path = 'output/data/data.txt'
-    
+def remove_folder(folder_path):
+    try:
+        shutil.rmtree(folder_path)
+        print(f"Folder '{folder_path}' and its contents successfully removed.")
+    except Exception as e:
+        print(f"Failed to remove folder '{folder_path}'")
+
+def handle(OUTPUT_DATA_FOLDER):
+    file_path = OUTPUT_DATA_FOLDER +"/data.txt"
     # Get sentences from the file
     text = get_sentences(file_path)
     sentences = split_and_trim(text)
-
+    foldername=OUTPUT_DATA_FOLDER.split("/")[1]
+    OUTPUT_MERGE_FOLDER = f"merge/{foldername}"
+    OUTPUT_AUDIO_CUT_FOLDER = f"audioCut/{foldername}"
+    remove_folder(OUTPUT_AUDIO_CUT_FOLDER)
+    os.makedirs(OUTPUT_MERGE_FOLDER, exist_ok=True)
+    os.makedirs(OUTPUT_AUDIO_CUT_FOLDER, exist_ok=True)
     # Merge audio based on sentences
-    merge_audio_match_sentence(OUTPUT_DATA_FOLDER, sentences)
+    merge_audio_match_sentence(OUTPUT_DATA_FOLDER, sentences,OUTPUT_DATA_FOLDER,OUTPUT_MERGE_FOLDER,OUTPUT_AUDIO_CUT_FOLDER)
 
     # Sort and rename WAV files
-    folder_path = "output/audioCut"  
-    sorted_files = sort_wav_files(folder_path)
+    sorted_files = sort_wav_files(OUTPUT_AUDIO_CUT_FOLDER)
+    remove_folder(OUTPUT_MERGE_FOLDER)
 
 if __name__ == "__main__":
-    main()
+    # handle("output/data")
+    directory="output"
+    items = os.listdir(directory)
+    # Filter out only the folders
+    folders = [item for item in items if os.path.isdir(os.path.join(directory, item))]
+    threads = [threading.Thread(target=handle, args=(directory+"/"+folder,)) for folder in folders]
+
+    # Start all threads
+    for thread in threads:
+        thread.start()
+
+    # Wait for all threads to finish
+    for thread in threads:
+        thread.join()
