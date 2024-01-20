@@ -128,7 +128,7 @@ def handle(OUTPUT_DATA_FOLDER):
     merge_audio_match_sentence(OUTPUT_DATA_FOLDER, sentences,OUTPUT_DATA_FOLDER,OUTPUT_MERGE_FOLDER,OUTPUT_AUDIO_CUT_FOLDER)
 
     # Sort and rename WAV files
-    sorted_files = sort_wav_files(OUTPUT_AUDIO_CUT_FOLDER)
+    sort_wav_files(OUTPUT_AUDIO_CUT_FOLDER)
     remove_folder(OUTPUT_MERGE_FOLDER)
 
 if __name__ == "__main__":
