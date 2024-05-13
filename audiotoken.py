@@ -1,13 +1,19 @@
-import auditok
+import numpy as np
+import matplotlib.pyplot as plt
+import librosa
 
-sr = 44100
-sw = 2
-ch = 1
-eth = 55 # alias for energy_threshold, default value is 50
+# Load the audio file
+file_path = "your_audio_file_path.wav"  # Replace this with the path to your audio file
+audio_signal, sample_rate = librosa.load(file_path, sr=None)
 
-try:
-    for region in auditok.split(input=None, sr=sr, sw=sw, ch=ch, eth=eth):
-        print(region)
-        region.play(progress_bar=True) # progress bar requires `tqdm`
-except KeyboardInterrupt:
-     pass
+# Calculate the time axis
+time = np.arange(0, len(audio_signal)) / sample_rate
+
+# Plot the audio signal
+plt.figure(figsize=(10, 4))
+plt.plot(time, audio_signal, color='b')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+plt.title('Audio Signal')
+plt.grid(True)
+plt.show()
